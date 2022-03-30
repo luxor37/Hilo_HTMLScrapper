@@ -5,45 +5,61 @@ public class Scrapper
 {
     public static void Main()
     {
-        var keepGoing = "y";
+        bool keepGoing = true;
 
-        while (keepGoing == "y")
+        while (keepGoing)
         {
-            keepGoing = "";
-            var url = "";
-            while (!ValidateUrl(url))
-            {
-                Console.Write("Enter a URL: ");
-                url = Console.ReadLine();
+            var response = CallUrl(GetUrl()).Result.ToLower();
 
-                if (string.IsNullOrEmpty(url))
-                    url = "https://www.hiloenergie.com/fr-ca/";
-
-                if (!url.Contains("https://"))
-                {
-                    url = "https://" + url;
-                }
-            }
-
-            var word = "";
-            while (string.IsNullOrEmpty(word))
-            {
-                Console.Write("Enter a word to find: ");
-                word = Console.ReadLine();
-            }
-
-            var response = CallUrl(url).Result;
-
-            var count = response.ToLower().Split(word.ToLower()).Length - 1;
+            var count = response.Split(GetWord()).Length - 1;
 
             Console.WriteLine(count);
 
-            while (keepGoing != "y" && keepGoing != "n")
+            keepGoing = KeepGoing();
+        }
+    }
+
+    private static bool KeepGoing()
+    {
+        var keepGoing = "";
+
+        while (keepGoing != "y" && keepGoing != "n")
+        {
+            Console.Write("Do you want to continue (y/n):");
+            keepGoing = Console.ReadLine();
+        }
+
+        return keepGoing == "y";
+    }
+
+    private static string GetUrl()
+    {
+        var url = "";
+        while (!ValidateUrl(url))
+        {
+            Console.Write("Enter a URL: ");
+            url = Console.ReadLine();
+
+            if (string.IsNullOrEmpty(url))
+                url = "https://www.hiloenergie.com/fr-ca/";
+
+            if (!url.Contains("https://"))
             {
-                Console.Write("Do you want to continue (y/n):");
-                keepGoing = Console.ReadLine();
+                url = "https://" + url;
             }
         }
+        return url;
+    }
+
+    private static string GetWord()
+    {
+        var word = "";
+        while (string.IsNullOrEmpty(word))
+        {
+            Console.Write("Enter a word to find: ");
+            word = Console.ReadLine();
+        }
+        return word.ToLower();
     }
 
     private static bool ValidateUrl(string url)
