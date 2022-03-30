@@ -18,6 +18,11 @@ public class Scrapper
 
                 if (string.IsNullOrEmpty(url))
                     url = "https://www.hiloenergie.com/fr-ca/";
+
+                if (!url.Contains("https://"))
+                {
+                    url = "https://" + url;
+                }
             }
 
             var word = "";
@@ -28,10 +33,10 @@ public class Scrapper
             }
 
             var response = CallUrl(url).Result;
-            var count = response.Split(' ').Where(word => 
-                word.ToLower().Contains("maison"))
-                .ToList();
-            Console.WriteLine(count.Count);
+
+            var count = response.ToLower().Split(word.ToLower()).Length - 1;
+
+            Console.WriteLine(count);
 
             while (keepGoing != "y" && keepGoing != "n")
             {
