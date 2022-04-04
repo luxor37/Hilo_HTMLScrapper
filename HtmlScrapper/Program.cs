@@ -53,21 +53,28 @@ namespace HtmlScrapper
 
         private static void ShowHistory()
         {
-            using StreamReader sr = File.OpenText(file);
-
-            var s = sr.ReadLine();
-
-            if (s == null)
-                Console.WriteLine("No result");
-            else
+            try
             {
-                Console.WriteLine("Previous search results:");
-                do
+                using StreamReader sr = File.OpenText(file);
+
+                var s = sr.ReadLine();
+
+                if (s == null)
+                    Console.WriteLine("No result");
+                else
                 {
-                    var result = s.Split(",");
-                    Console.WriteLine($"'{result[1]}' appeared {result[2]} times at '{result[0]}' on {result[3]}");
+                    Console.WriteLine("Previous search results:");
+                    do
+                    {
+                        var result = s.Split(",");
+                        Console.WriteLine($"'{result[1]}' appeared {result[2]} times at '{result[0]}' on {result[3]}");
+                    }
+                    while ((s = sr.ReadLine()) != null);
                 }
-                while ((s = sr.ReadLine()) != null);
+            }
+            catch (FileNotFoundException)
+            {
+                Console.WriteLine("No result");
             }
         }
 
@@ -100,12 +107,12 @@ namespace HtmlScrapper
             if (yOrN == "y")
             {
                 var location = "";
-                while (!ValidatePath(location))
+                while (!ValidatePath(location!))
                 {
                     Console.Write("Enter a relative path:");
                     location = Console.ReadLine();
                 }
-                var absolutePath = Path.GetFullPath(location) + "\\search.csv";
+                var absolutePath = Path.GetFullPath(location!) + "\\search.csv";
                 SaveSearch(url, word, count, absolutePath);
                 Console.WriteLine($"This search was saved at '{absolutePath}'");
             }

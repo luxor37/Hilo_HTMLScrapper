@@ -70,7 +70,7 @@ namespace HtmlScrapper
 
                 isValid = response.Result.StatusCode == HttpStatusCode.OK;
             }
-            catch(AggregateException ex)
+            catch(AggregateException)
             {
                 isValid = false;
             }
