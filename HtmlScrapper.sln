@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31825.309
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HtmlScrapper", "HtmlScrapper\HtmlScrapper.csproj", "{2250B486-363A-45FB-94AE-E4E698A20D9B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HtmlScrapper", "HtmlScrapper\HtmlScrapper.csproj", "{2250B486-363A-45FB-94AE-E4E698A20D9B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HtmlScrapperTests", "HtmlScrapperTests\HtmlScrapperTests.csproj", "{2941C142-F1EB-4AB8-8CB9-ACD7E6B666E7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{2250B486-363A-45FB-94AE-E4E698A20D9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2250B486-363A-45FB-94AE-E4E698A20D9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2250B486-363A-45FB-94AE-E4E698A20D9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2941C142-F1EB-4AB8-8CB9-ACD7E6B666E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2941C142-F1EB-4AB8-8CB9-ACD7E6B666E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2941C142-F1EB-4AB8-8CB9-ACD7E6B666E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2941C142-F1EB-4AB8-8CB9-ACD7E6B666E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

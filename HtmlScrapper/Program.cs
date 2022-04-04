@@ -1,14 +1,10 @@
-﻿using System.Net;
+﻿using static HtmlScrapper.Utils;
 
 namespace HtmlScrapper
 {
     public class Scrapper
     {
         private const string file = "searchHistory.csv";
-        private enum Choices
-        {
-            Invalid, History, Search, ClearHistory, Quit
-        }
 
         public static void Main()
         {
@@ -36,7 +32,7 @@ namespace HtmlScrapper
             Choices choice = Choices.Invalid;
             while (choice == Choices.Invalid)
             {
-                Console.Write("\n---\n1. Consult history\n2. Search\n3. Clear History\n4. Quit\nEnter your choice: ");
+                Console.Write("\n1. Consult history\n2. Search\n3. Clear History\n4. Quit\nEnter your choice: ");
                 choice = Console.ReadLine() switch
                 {
                     "1" => Choices.History,
@@ -78,11 +74,9 @@ namespace HtmlScrapper
         private static void Search()
         {
             var url = GetUrl();
-
             var word = GetWord();
 
             var response = CallUrl(url).Result.ToLower();
-
             var count = response.Split(word).Length - 1;
 
             Console.WriteLine($"The word appears {count} times in the source code.");
@@ -90,18 +84,30 @@ namespace HtmlScrapper
             //Saving to search history file
             SaveSearch(url, word, count);
 
-            var yOrN = "";
-            while(yOrN != "y" && yOrN != "n")
+            SaveCurrentSearch(url, word, count);
+        }
+
+        //Ask the user to save the current search to a specific location
+        private static void SaveCurrentSearch(string url, string word, int count) {
+            string? yOrN;
+            do
             {
-                Console.WriteLine("Do you want to save this serach? (y/n):");
+                Console.Write("Do you want to save this search? (y/n):");
                 yOrN = Console.ReadLine();
             }
+            while (yOrN != "y" && yOrN != "n");
 
-            if(yOrN == "y")
+            if (yOrN == "y")
             {
-                var location = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\search.csv";
-                SaveSearch(url, word, count, location);
-                Console.WriteLine($"This search was saved at '{location}'");
+                var location = "";
+                while (!ValidatePath(location))
+                {
+                    Console.Write("Enter a relative path:");
+                    location = Console.ReadLine();
+                }
+                var absolutePath = Path.GetFullPath(location) + "\\search.csv";
+                SaveSearch(url, word, count, absolutePath);
+                Console.WriteLine($"This search was saved at '{absolutePath}'");
             }
         }
 
@@ -112,57 +118,10 @@ namespace HtmlScrapper
             if (string.IsNullOrEmpty(location))
             {
                 using StreamWriter sw = File.AppendText(file);
-
                 sw.WriteLine(line);
             }
             else
                 File.WriteAllText(location, line);
-        }
-
-        private static string GetUrl()
-        {
-            var url = "";
-            while (!ValidateUrl(url))
-            {
-                Console.Write("Enter a URL: ");
-                url = Console.ReadLine();
-
-                if (string.IsNullOrEmpty(url))
-                {
-                    url = "";
-                    continue;
-                }
-
-                if (!url.Contains("https://"))
-                    url = "https://" + url;
-            }
-            return url;
-        }
-
-        private static string GetWord()
-        {
-            var word = "";
-            while (string.IsNullOrEmpty(word))
-            {
-                Console.Write("Enter a word to find: ");
-                word = Console.ReadLine();
-            }
-            return word.ToLower();
-        }
-
-        private static bool ValidateUrl(string url)
-        {
-            return Uri.IsWellFormedUriString(url, UriKind.Absolute);
-        }
-
-        //https://www.scrapingbee.com/blog/web-scraping-csharp/
-        private static async Task<string> CallUrl(string fullUrl)
-        {
-            HttpClient client = new();
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls13;
-            client.DefaultRequestHeaders.Accept.Clear();
-            var response = client.GetStringAsync(fullUrl);
-            return await response;
         }
     }
 }
