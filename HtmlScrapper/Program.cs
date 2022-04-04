@@ -7,7 +7,7 @@ namespace HtmlScrapper
         private const string file = "searchHistory.csv";
         private enum Choices
         {
-            History, Search, ClearHistory, Quit
+            Invalid, History, Search, ClearHistory, Quit
         }
 
         public static void Main()
@@ -24,8 +24,7 @@ namespace HtmlScrapper
                         Search();
                         break;
                     case Choices.ClearHistory:
-                        var sr = File.Create(file);
-                        sr.Close();
+                        File.Create(file).Close();
                         Console.WriteLine("History Cleared");
                         break;
                 }
@@ -34,26 +33,26 @@ namespace HtmlScrapper
 
         private static Choices Menu()
         {
-            var choice = "";
-            while (choice != "1" && choice != "2" && choice != "3" && choice != "4")
+            Choices choice = Choices.Invalid;
+            while (choice == Choices.Invalid)
             {
                 Console.Write("\n---\n1. Consult history\n2. Search\n3. Clear History\n4. Quit\nEnter your choice: ");
-                choice = Console.ReadLine();
+                choice = Console.ReadLine() switch
+                {
+                    "1" => Choices.History,
+                    "2" => Choices.Search,
+                    "3" => Choices.ClearHistory,
+                    "4" => Choices.Quit,
+                    _ => Choices.Invalid,
+                };
 
-                if (choice != "1" && choice != "2" && choice != "3" && choice != "4")
+                if (choice == Choices.Invalid)
                     Console.WriteLine("Invalid choice");
                 else
                     Console.WriteLine("\n");
             }
 
-            return choice switch
-            {
-                "1" => Choices.History,
-                "2" => Choices.Search,
-                "3" => Choices.ClearHistory,
-                "4" => Choices.Quit,
-                _ => Choices.Search,
-            };
+            return choice;
         }
 
         private static void ShowHistory()
@@ -70,7 +69,7 @@ namespace HtmlScrapper
                 do
                 {
                     var result = s.Split(",");
-                    Console.WriteLine("'" + result[1] + "' appeared " + result[2] + " times at '" + result[0] + "' on " + result[3]);
+                    Console.WriteLine($"'{result[1]}' appeared {result[2]} times at '{result[0]}' on {result[3]}");
                 }
                 while ((s = sr.ReadLine()) != null);
             }
@@ -86,19 +85,38 @@ namespace HtmlScrapper
 
             var count = response.Split(word).Length - 1;
 
-            Console.WriteLine("The word appears " + count + " times in the source code.");
+            Console.WriteLine($"The word appears {count} times in the source code.");
 
+            //Saving to search history file
             SaveSearch(url, word, count);
+
+            var yOrN = "";
+            while(yOrN != "y" && yOrN != "n")
+            {
+                Console.WriteLine("Do you want to save this serach? (y/n):");
+                yOrN = Console.ReadLine();
+            }
+
+            if(yOrN == "y")
+            {
+                var location = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\search.csv";
+                SaveSearch(url, word, count, location);
+                Console.WriteLine($"This search was saved at '{location}'");
+            }
         }
 
-        private static void SaveSearch(string url, string word, int count)
+        private static void SaveSearch(string url, string word, int count, string location = "")
         {
-            var date = DateTime.Now;
-            var line = $"{url},{word},{count},{date:MMMM dd yyyy}";
+            var line = $"'{url}',{word},{count},{DateTime.Now:MMMM dd yyyy}";
 
-            using StreamWriter sw = File.AppendText(file);
+            if (string.IsNullOrEmpty(location))
+            {
+                using StreamWriter sw = File.AppendText(file);
 
-            sw.WriteLine(line);
+                sw.WriteLine(line);
+            }
+            else
+                File.WriteAllText(location, line);
         }
 
         private static string GetUrl()
@@ -110,12 +128,13 @@ namespace HtmlScrapper
                 url = Console.ReadLine();
 
                 if (string.IsNullOrEmpty(url))
-                    url = "https://www.hiloenergie.com/fr-ca/";
+                {
+                    url = "";
+                    continue;
+                }
 
                 if (!url.Contains("https://"))
-                {
                     url = "https://" + url;
-                }
             }
             return url;
         }
